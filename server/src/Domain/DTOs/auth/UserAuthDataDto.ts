@@ -1,7 +1,7 @@
 export class UserAuthDataDto {
-   public constructor(
-        public id: number = 0,
-        public korisnickoIme: string = '',
-        public uloga: string = 'user'
-    ) {}
+  constructor(
+    public id: number = 0,
+    public username: string = "",
+    public role: string = ""
+  ) {}
 }

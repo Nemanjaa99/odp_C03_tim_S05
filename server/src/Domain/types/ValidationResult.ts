@@ -1,4 +1,4 @@
-export type RezultatValidacije = {
+export interface ValidationResult {
   uspesno: boolean;
-  poruka?: string;
-};
+  poruka: string;
+}

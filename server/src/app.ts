@@ -1,34 +1,35 @@
 import express from 'express';
 import cors from 'cors';
-import { IAuthService } from './Domain/services/auth/IAuthService';
-import { AuthService } from './Services/auth/AuthService';
-import { IUserRepository } from './Domain/repositories/users/IUserRepository';
 import { UserRepository } from './Database/repositories/users/UserRepository';
-import { AuthController } from './WebAPI/controllers/AuthController';
-import { IUserService } from './Domain/services/users/IUserService';
+import { AuditRepository } from './Database/repositories/audit/AuditRepository';
+import { AuthService } from './Services/auth/AuthService';
 import { UserService } from './Services/users/UserService';
+import { AuthController } from './WebAPI/controllers/AuthController';
 import { UserController } from './WebAPI/controllers/UserController';
+import { AuditController } from './WebAPI/controllers/AuditController';
 
 require('dotenv').config();
 
 const app = express();
-
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
 // Repositories
-const userRepository: IUserRepository = new UserRepository();
+const userRepository = new UserRepository();
+const auditRepository = new AuditRepository();
 
 // Services
-const authService: IAuthService = new AuthService(userRepository);
-const userService: IUserService = new UserService(userRepository);
+const authService = new AuthService(userRepository, auditRepository);
+const userService = new UserService(userRepository);
 
-// WebAPI routes
+// Controllers
 const authController = new AuthController(authService);
 const userController = new UserController(userService);
+const auditController = new AuditController(auditRepository);
 
-// Registering routes
+// Routes
 app.use('/api/v1', authController.getRouter());
 app.use('/api/v1', userController.getRouter());
+app.use('/api/v1', auditController.getRouter());
 
 export default app;

@@ -3,8 +3,8 @@ import jwt from "jsonwebtoken";
 
 interface JwtPayload {
   id: number;
-  korisnickoIme: string;
-  uloga: string;
+  username: string;
+  role: string;
 }
 
 declare global {
@@ -15,11 +15,7 @@ declare global {
   }
 }
 
-export const authenticate = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void => {
+export const authenticate = (req: Request, res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -30,14 +26,10 @@ export const authenticate = (
   const token = authHeader.split(" ")[1];
 
   try {
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET ?? ""
-    ) as JwtPayload;
-
-    req.user = decoded; // postavlja korisnika na req
+    const decoded = jwt.verify(token, process.env.JWT_SECRET ?? "") as JwtPayload;
+    req.user = decoded;
     next();
-  } catch (err) {
+  } catch {
     res.status(401).json({ success: false, message: "Nevažeći token" });
   }
 };
