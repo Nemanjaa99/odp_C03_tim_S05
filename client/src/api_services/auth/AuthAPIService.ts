@@ -1,52 +1,36 @@
-import type { AuthResponse } from "../../types/auth/AuthResponse";
-import type { IAuthAPIService } from "./IAuthAPIService";
 import axios from "axios";
+import { LoginRequest, RegisterRequest } from "../../types/auth/authTypes";
 
-const API_URL: string = import.meta.env.VITE_API_URL + "auth";
+const API_URL = import.meta.env.VITE_API_URL;
 
-export const authApi: IAuthAPIService = {
-  async prijava(korisnickoIme: string, lozinka: string): Promise<AuthResponse> {
+export const AuthAPIService = {
+  async login(data: LoginRequest): Promise<string | null> {
     try {
-      const res = await axios.post<AuthResponse>(`${API_URL}/login`, {
-        korisnickoIme,
-        lozinka,
-      });
-      return res.data;
-    } catch (error) {
-      let message = "Грешка приликом пријаве.";
-      if (axios.isAxiosError(error)) {
-        message = error.response?.data?.message || message;
-      }
-      return {
-        success: false,
-        message,
-        data: undefined,
-      };
+      const response = await axios.post(`${API_URL}/auth/login`, data);
+      if (response.data.success) return response.data.data as string;
+      return null;
+    } catch {
+      return null;
     }
   },
 
-  async registracija(
-    korisnickoIme: string,
-    lozinka: string,
-    uloga: string
-  ): Promise<AuthResponse> {
+  async register(data: RegisterRequest): Promise<string | null> {
     try {
-      const res = await axios.post<AuthResponse>(`${API_URL}/register`, {
-        korisnickoIme,
-        lozinka,
-        uloga
+      const response = await axios.post(`${API_URL}/auth/register`, data);
+      if (response.data.success) return response.data.data as string;
+      return null;
+    } catch {
+      return null;
+    }
+  },
+
+  async logout(token: string): Promise<void> {
+    try {
+      await axios.post(`${API_URL}/auth/logout`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-      return res.data;
-    } catch (error) {
-      let message = "Greška prilikom registracije.";
-      if (axios.isAxiosError(error)) {
-        message = error.response?.data?.message || message;
-      }
-      return {
-        success: false,
-        message,
-        data: undefined,
-      };
+    } catch {
+      // tiha greška
     }
   },
 };

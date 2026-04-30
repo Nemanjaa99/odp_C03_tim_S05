@@ -1,39 +1,34 @@
-import {
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
-import { authApi } from "./api_services/auth/AuthAPIService";
-// import { ProtectedRoute } from "./components/protected_route/ProtectedRoute";
-import PrijavaStranica from "./pages/auth/PrijavaStranica";
-import RegistracijaStranica from "./pages/auth/RegistracijaStranica";
-import NotFoundStranica from "./pages/not_found/NotFoundPage";
-// import { usersApi } from "./api_services/users/UsersAPIService";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./contexts/auth/AuthProvider";
+import { Layout } from "./components/layout/Layout";
+import { ProtectedRoute } from "./components/protected_route/ProtectedRoute";
+import { LoginPage } from "./pages/auth/LoginPage";
+import { RegisterPage } from "./pages/auth/RegisterPage";
+import { NotFoundPage } from "./pages/not_found/NotFoundPage";
+
+// Placeholder stranice — biće zamenjene u sledećim commitovima
+const CatalogPage = () => <div className="fb-page-header"><h1 className="fb-page-title">Katalog igara</h1><p className="fb-page-subtitle">Dolazi u Commit 6...</p></div>;
+const CollectionPage = () => <div className="fb-page-header"><h1 className="fb-page-title">Moja kolekcija</h1><p className="fb-page-subtitle">Dolazi u Commit 7...</p></div>;
+const SessionsPage = () => <div className="fb-page-header"><h1 className="fb-page-title">Moje sesije</h1><p className="fb-page-subtitle">Dolazi u Commit 7...</p></div>;
+const AdminPage = () => <div className="fb-page-header"><h1 className="fb-page-title">Admin panel</h1><p className="fb-page-subtitle">Dolazi u Commit 8...</p></div>;
 
 function App() {
   return (
-    <Routes>
-      <Route path="/login" element={<PrijavaStranica authApi={authApi} />} />
-      <Route path="/register" element={<RegistracijaStranica authApi={authApi} />} />
-      <Route path="/404" element={<NotFoundStranica />} />
-
-        {/*
-          Example usage of protected route.
-        <Route
-          path="/user-dashboard"
-          element={
-            <ProtectedRoute requiredRole="user">
-              <KontrolnaTablaUserStranica />
-            </ProtectedRoute>
-          }
-        /> */}
-
-        {/* Preusmerava na dashboard kao default rutu */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
-
-        {/* Catch-all ruta za nepostojeće stranice */}
-        <Route path="*" element={<Navigate to="/404" replace />} />
-    </Routes>
+    <BrowserRouter>
+      <AuthProvider>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<CatalogPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/collection" element={<ProtectedRoute><CollectionPage /></ProtectedRoute>} />
+            <Route path="/sessions" element={<ProtectedRoute><SessionsPage /></ProtectedRoute>} />
+            <Route path="/admin" element={<ProtectedRoute adminOnly><AdminPage /></ProtectedRoute>} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Layout>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
